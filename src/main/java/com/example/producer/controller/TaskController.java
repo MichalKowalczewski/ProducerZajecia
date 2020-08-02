@@ -4,6 +4,7 @@ import com.example.producer.model.dto.TaskDTO;
 import com.example.producer.service.TaskService;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,5 +21,8 @@ public class TaskController {
 
     @RequestMapping(method = RequestMethod.GET)
     public List<TaskDTO> findAll() {return taskService.findAll();}
+
+    @RequestMapping(value = "/{id}" ,method = RequestMethod.GET)
+    public TaskDTO findById(@PathVariable Integer id) { return taskService.findById(id); }
 
 }

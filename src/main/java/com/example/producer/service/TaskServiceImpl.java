@@ -1,6 +1,7 @@
 package com.example.producer.service;
 
 
+import com.example.producer.exceptions.TaskNotFoundException;
 import com.example.producer.model.dto.TaskDTO;
 import com.example.producer.repository.TaskRepository;
 import org.modelmapper.ModelMapper;
@@ -22,5 +23,10 @@ public class TaskServiceImpl implements TaskService {
         return repository.findAll().stream()
                 .map(task -> modelMapper.map(task, TaskDTO.class))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public TaskDTO findById(Integer id) {
+        return modelMapper.map(repository.findById(id).orElseThrow(TaskNotFoundException::new), TaskDTO.class);
     }
 }

@@ -12,6 +12,13 @@ public class TaskDTO {
     public TaskDTO() {
     }
 
+    public TaskDTO(String description, boolean completed, Integer completionPercentage, UserDTO user) {
+        this.description = description;
+        this.completed = completed;
+        this.completionPercentage = completionPercentage;
+        this.user = user;
+    }
+
     public TaskDTO(Integer id, String description, boolean completed, Integer completionPercentage, UserDTO user) {
         this.id = id;
         this.description = description;
