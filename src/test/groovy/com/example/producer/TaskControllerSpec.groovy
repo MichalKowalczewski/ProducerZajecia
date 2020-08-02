@@ -4,6 +4,7 @@ import com.example.producer.controller.TaskController
 import com.example.producer.exceptions.TaskNotFoundException
 import com.example.producer.model.dto.TaskDTO
 import com.example.producer.model.dto.UserDTO
+import com.example.producer.service.TaskService
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.beans.factory.annotation.Autowired
@@ -17,6 +18,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import spock.lang.Specification
 
 @SpringBootTest
@@ -32,6 +34,8 @@ class TaskControllerSpec extends Specification {
     MockMvc mvc
     @Autowired
     TaskController taskController;
+    @Autowired
+    TaskService taskService;
     private ObjectMapper objectMapper = new ObjectMapper()
 
     def "should return list of Tasks"(){
@@ -64,14 +68,48 @@ class TaskControllerSpec extends Specification {
     def "should add new Task to the database"(){
         given:
         def request = objectMapper.writeValueAsString(dto3)
+
+        expect:
+        mvc.perform(post('/api/tasks')
+                .content(request)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
         when:
-        def result = mvc.perform(post('/api/tasks')
+        def taskFromDb = taskService.findLast()
+        dto3.setId(taskFromDb.id)
+        then:
+        dto3 == taskFromDb
+    }
+
+    @Unroll
+    def "should update Task in database"(){
+        given:
+        def request = objectMapper.writeValueAsString(task)
+        when:
+        def result = mvc.perform(put('/api/tasks/'+id)
         .content(request)
         .contentType(MediaType.APPLICATION_JSON))
         .andReturn()
-
         then:
         result.getResponse().status == 200
+        taskController.findById(id) == taskFromDatabase
+
+        where:
+        id   |   task               |  taskFromDatabase
+        1 | new TaskDTO(1, "testChanged", false, 10, new UserDTO("firstName", "lastName", "email@email.com")) | new TaskDTO(1, "testChanged", false, 10, new UserDTO(2, "firstName", "lastName", "email@email.com"))
+        2 | new TaskDTO(2, "testChanged2", true) | new TaskDTO(2, "testChanged2", true)
+    }
+
+    def "should delete task with id id=3"(){
+        when:
+        def result = mvc.perform(delete("/api/tasks/3")).andReturn()
+        then:
+        result.getResponse().status == 200
+        when:
+        taskController.findById(3)
+        then:
+        def exception = thrown(TaskNotFoundException)
+        exception.getMessage() == "Could not find searched Task"
     }
 
 }
