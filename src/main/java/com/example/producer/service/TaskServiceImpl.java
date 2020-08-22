@@ -59,6 +59,11 @@ public class TaskServiceImpl implements TaskService {
         return modelMapper.map(entity, TaskDTO.class);
     }
 
+    @Override
+    public void delete(Integer id) {
+        repository.delete(repository.findById(id).orElseThrow(TaskNotFoundException::new));
+    }
+
     private Task getOneSafe(Integer id){
         if(repository.existsById(id)){
             return repository.getOne(id);

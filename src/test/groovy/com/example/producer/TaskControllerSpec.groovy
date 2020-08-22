@@ -100,13 +100,13 @@ class TaskControllerSpec extends Specification {
         2 | new TaskDTO(2, "testChanged2", true) | new TaskDTO(2, "testChanged2", true)
     }
 
-    def "should delete task with id id=3"(){
+    def "should delete task with id id=2"(){
         when:
-        def result = mvc.perform(delete("/api/tasks/3")).andReturn()
+        def result = mvc.perform(delete("/api/tasks/2")).andReturn()
         then:
         result.getResponse().status == 200
         when:
-        taskController.findById(3)
+        taskController.findById(2)
         then:
         def exception = thrown(TaskNotFoundException)
         exception.getMessage() == "Could not find searched Task"

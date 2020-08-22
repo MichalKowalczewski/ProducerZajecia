@@ -10,4 +10,5 @@ public interface TaskService {
     TaskDTO create(TaskDTO task);
     TaskDTO findLast();
     TaskDTO update(Integer id,TaskDTO task);
+    void delete(Integer id);
 }
